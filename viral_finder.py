@@ -2,8 +2,8 @@ import sys
 import argparse
 import gffutils
 from Bio import SeqIO
-import pandas as pd
 from Bio.SeqRecord import SeqRecord
+import pandas as pd
 
 
 def main(args):
@@ -37,7 +37,9 @@ def main(args):
         print(f"Processing {contig.id}...\n")
 
         # THOUGHT: is ordering by start a reasonable assumption?
-        for gene in db.region(seqid=contig.id, featuretype="gene", completely_within=True):
+        genes = list(db.region(seqid=contig.id, featuretype="gene", completely_within=True))
+
+        for gene in genes:
             has_name = "Name" in gene.attributes.keys()
             is_viral = "Virus" in str(gene.attributes["Name"]) if has_name else False
 
@@ -57,8 +59,8 @@ def main(args):
                     neighbourhood.append(gene)
                     pattern.append("r")
 
-            # sealing off a neighbourhood
-            if gap_count > args.threshold:
+            # sealing off a neighbourhood when threshold is reached or at the end of a contig
+            if gap_count > args.threshold or gene == genes[-1]:
                 contig = neighbourhood[0].seqid
                 start = neighbourhood[0].start
                 end = neighbourhood[-1].end
