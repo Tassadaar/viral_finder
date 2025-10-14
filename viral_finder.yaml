@@ -1,0 +1,47 @@
+name: viral_finder_test
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - argcomplete=3.6.2
+  - argh=0.29.4
+  - biopython=1.85
+  - blas=1.0
+  - bottleneck=1.4.2
+  - bzip2=1.0.8
+  - ca-certificates=2025.9.9
+  - expat=2.7.1
+  - gffutils=0.13
+  - importlib-metadata=8.5.0
+  - libcxx=20.1.8
+  - libffi=3.4.4
+  - libgfortran=5.0.0
+  - libgfortran5=11.3.0
+  - libopenblas=0.3.30
+  - libzlib=1.3.1
+  - llvm-openmp=20.1.8
+  - ncurses=6.5
+  - numexpr=2.11.0
+  - numpy=2.0.1
+  - numpy-base=2.0.1
+  - openssl=3.0.18
+  - packaging=25.0
+  - pandas=2.3.3
+  - pip=25.2
+  - pyfaidx=0.9.0.3
+  - python=3.12.11
+  - python-dateutil=2.9.0post0
+  - python-tzdata=2025.2
+  - pytz=2025.2
+  - pyvcf3=1.0.3
+  - readline=8.3
+  - setuptools=80.9.0
+  - simplejson=3.19.2
+  - six=1.17.0
+  - sqlite=3.50.2
+  - tk=8.6.15
+  - tzdata=2025b
+  - wheel=0.45.1
+  - xz=5.6.4
+  - zipp=3.21.0
+  - zlib=1.3.1
