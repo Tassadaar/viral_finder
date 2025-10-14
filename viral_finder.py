@@ -2,9 +2,12 @@ import sys
 import argparse
 import gffutils
 from Bio import SeqIO
+import pandas as pd
+from Bio.SeqRecord import SeqRecord
+
 
 def main(args):
-    contigs = list(SeqIO.parse(args.genome_path, "fasta"))
+    contigs: list[SeqRecord] = list(SeqIO.parse(args.genome_path, "fasta"))
     # we'll read the gff3 in
     db = gffutils.create_db(
         data=args.gff_filepath,
@@ -17,11 +20,24 @@ def main(args):
     neighbourhood = []
     viral_gene_count = 0
     gap_count = 0
+    # gene pattern (p=penton, b=polB, h=hypothetical, F=FtsK, a=adenain, e=putative fiber e, i=integrase, x=hexon, r=non-viral labeled genes)
+    # TODO: figure out what kathy thinks a hexon gene is, for now it'll just be empty
+    pattern_lookup = {
+        "penton": "p",
+        "PolB": "b",
+        "hypothetical": "h",
+        "adenain": "a",
+        "putative": "e",
+        "integrase": "i",
+        "hexon": "x"
+    }
+    pattern = []
 
     for contig in contigs:
+        print(f"Processing {contig.id}...\n")
 
         # THOUGHT: is ordering by start a reasonable assumption?
-        for gene in db.region(seqid=contig.id, featuretype="gene"):
+        for gene in db.region(seqid=contig.id, featuretype="gene", completely_within=True):
             has_name = "Name" in gene.attributes.keys()
             is_viral = "Virus" in str(gene.attributes["Name"]) if has_name else False
 
@@ -29,10 +45,17 @@ def main(args):
             if has_name and is_viral:
                 neighbourhood.append(gene)
                 viral_gene_count += 1
+
+                # adding pattern
+                for key, value in pattern_lookup.items():
+                    if key in str(gene.attributes["Name"]):
+                        pattern.append(value)
+
             elif (has_name and not is_viral) or not has_name:
                 gap_count += 1
                 if gap_count <= 3:
                     neighbourhood.append(gene)
+                    pattern.append("r")
 
             # sealing off a neighbourhood
             if gap_count > args.threshold:
@@ -49,15 +72,18 @@ def main(args):
                         "end": end,
                         "length": leng,
                         "gene count": gene_count,
-                        "viral gene count": viral_gene_count
+                        "viral gene count": viral_gene_count,
+                        "pattern": "".join(pattern)
                     })
 
                 neighbourhood = []
                 viral_gene_count = 0
                 gap_count = 0
+                pattern = []
 
-    for dicty in out:
-        print(dicty)
+    pd.DataFrame(out).to_csv("result.csv", index=False)
+    print("Results have been saved to ./result.csv.")
+    print("Exiting...")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
