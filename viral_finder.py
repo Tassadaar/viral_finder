@@ -96,11 +96,4 @@ if __name__ == "__main__":
     parser.add_argument("-g", "--gff3", dest="gff_filepath", type=str, required=True)
     parser.add_argument("-t", "--threshold", dest="threshold", type=int, required=True, help="Maximum number of gap genes allowed in a neighbourhood.")
 
-    sys.argv = [
-        "viral_finder.py",
-        "-f", "/Users/jason/Documents/Roger_Lab/Projects/viral_finder/data/Blastocystis_ST7C_Complete_Assembly.fasta",
-        "-g", "/Users/jason/Documents/Roger_Lab/Projects/viral_finder/data/ST7C_gene_predictions_viraltag.gff3",
-        "-t", "3"
-    ]
-
     main(parser.parse_args())
