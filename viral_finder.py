@@ -7,7 +7,6 @@ import pandas as pd
 
 
 def main(args):
-    contigs: list[SeqRecord] = list(SeqIO.parse(args.genome_path, "fasta"))
     # we'll read the gff3 in
     db = gffutils.create_db(
         data=args.gff_filepath,
@@ -16,6 +15,7 @@ def main(args):
         sort_attribute_values=True
     )
 
+    contigs = set(db.seqids())
     out = []
     neighbourhood = []
     viral_gene_count = 0
@@ -33,10 +33,10 @@ def main(args):
     pattern = []
 
     for contig in contigs:
-        print(f"Processing {contig.id}...\n")
+        print(f"Processing {contig}...\n")
 
         # THOUGHT: is ordering by start a reasonable assumption?
-        genes = list(db.region(seqid=contig.id, featuretype="gene", completely_within=True))
+        genes = list(db.region(seqid=contig, featuretype="gene", completely_within=True))
 
         for gene in genes:
             has_name = "Name" in gene.attributes.keys()
@@ -70,7 +70,7 @@ def main(args):
                 if viral_gene_count != 0:
 
                     # trim the tail of non-viral genes
-                    tail = min(gap_count, 3, len(neighbourhood), len(pattern))
+                    tail = min(gap_count, args.threshold, len(neighbourhood), len(pattern))
                     if tail:
                         del neighbourhood[-tail:]
                         del pattern[-tail:]
@@ -104,7 +104,6 @@ if __name__ == "__main__":
         description="Viral Finder finds gene neighbourhoods which contain MeldVirus genes",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("-f", "--fasta", dest="genome_path", type=str, required=True)
     parser.add_argument("-g", "--gff3", dest="gff_filepath", type=str, required=True)
     parser.add_argument("-t", "--threshold", dest="threshold", type=int, required=True, help="Maximum number of gap genes allowed in a neighbourhood.")
 
