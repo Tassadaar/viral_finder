@@ -21,11 +21,11 @@ def main(args):
     viral_gene_count = 0
     gap_count = 0
     # gene pattern (p=penton, b=polB, h=hypothetical, F=FtsK, a=adenain, e=putative fiber e, i=integrase, r=non-viral labeled genes)
-    # TODO: fix the gap threshold
     pattern_lookup = {
         "penton": "p",
         "PolB": "b",
         "hypothetical": "h",
+        "FtsK": "f",
         "adenain": "a",
         "putative": "e",
         "integrase": "i",
@@ -50,6 +50,9 @@ def main(args):
             if has_name and is_viral:
                 neighbourhood.append(gene)
                 viral_gene_count += 1
+
+                # resetting gap count if viral gene is reach before threshold
+                if gap_count == args.threshold: gap_count = 0
 
                 # adding pattern
                 for key, value in pattern_lookup.items():
@@ -99,6 +102,5 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--fasta", dest="genome_path", type=str, required=True)
     parser.add_argument("-g", "--gff3", dest="gff_filepath", type=str, required=True)
     parser.add_argument("-t", "--threshold", dest="threshold", type=int, required=True, help="Maximum number of gap genes allowed in a neighbourhood.")
-
 
     main(parser.parse_args())
