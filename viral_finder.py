@@ -60,7 +60,7 @@ def main(args):
             # finding non-viral genes in gaps
             elif (has_name and not is_viral) or not has_name:
                 gap_count += 1
-                if gap_count <= 3:
+                if gap_count <= args.threshold:
                     neighbourhood.append(gene)
                     pattern.append("r")
 
@@ -105,6 +105,6 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("-g", "--gff3", dest="gff_filepath", type=str, required=True)
-    parser.add_argument("-t", "--threshold", dest="threshold", type=int, required=True, help="Maximum number of gap genes allowed in a neighbourhood.")
+    parser.add_argument("-t", "--threshold", dest="threshold", type=int, required=True, help="Maximum number of gap genes allowed in a gap.")
 
     main(parser.parse_args())
