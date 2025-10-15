@@ -50,9 +50,7 @@ def main(args):
             if has_name and is_viral:
                 neighbourhood.append(gene)
                 viral_gene_count += 1
-
-                # resetting gap count if viral gene is reach before threshold
-                if gap_count == args.threshold: gap_count = 0
+                gap_count = 0
 
                 # adding pattern
                 for key, value in pattern_lookup.items():
@@ -68,13 +66,20 @@ def main(args):
 
             # sealing off a neighbourhood when threshold is reached or at the end of a contig
             if gap_count > args.threshold or gene == genes[-1]:
-                contig = neighbourhood[0].seqid
-                start = neighbourhood[0].start
-                end = neighbourhood[-1].end
-                leng = end - start + 1
-                gene_count = len(neighbourhood)
 
                 if viral_gene_count != 0:
+
+                    # trim the tail of non-viral genes
+                    tail = min(gap_count, 3, len(neighbourhood), len(pattern))
+                    if tail:
+                        del neighbourhood[-tail:]
+                        del pattern[-tail:]
+
+                    contig = neighbourhood[0].seqid
+                    start = neighbourhood[0].start
+                    end = neighbourhood[-1].end
+                    leng = end - start + 1
+                    gene_count = len(neighbourhood)
                     out.append({
                         "contig": contig,
                         "start": start,
