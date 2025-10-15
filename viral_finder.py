@@ -20,8 +20,8 @@ def main(args):
     neighbourhood = []
     viral_gene_count = 0
     gap_count = 0
-    # gene pattern (p=penton, b=polB, h=hypothetical, F=FtsK, a=adenain, e=putative fiber e, i=integrase, x=hexon, r=non-viral labeled genes)
-    # TODO: figure out what kathy thinks a hexon gene is, for now it'll just be empty
+    # gene pattern (p=penton, b=polB, h=hypothetical, F=FtsK, a=adenain, e=putative fiber e, i=integrase, r=non-viral labeled genes)
+    # TODO: fix the gap threshold
     pattern_lookup = {
         "penton": "p",
         "PolB": "b",
@@ -29,7 +29,6 @@ def main(args):
         "adenain": "a",
         "putative": "e",
         "integrase": "i",
-        "hexon": "x"
     }
     pattern = []
 
@@ -43,6 +42,10 @@ def main(args):
             has_name = "Name" in gene.attributes.keys()
             is_viral = "Virus" in str(gene.attributes["Name"]) if has_name else False
 
+            # skip non-viral starts
+            if (not has_name or (has_name and not is_viral)) and len(neighbourhood) == 0:
+                continue
+
             # finding viral genes
             if has_name and is_viral:
                 neighbourhood.append(gene)
@@ -53,6 +56,7 @@ def main(args):
                     if key in str(gene.attributes["Name"]):
                         pattern.append(value)
 
+            # finding non-viral genes in gaps
             elif (has_name and not is_viral) or not has_name:
                 gap_count += 1
                 if gap_count <= 3:
@@ -95,5 +99,6 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--fasta", dest="genome_path", type=str, required=True)
     parser.add_argument("-g", "--gff3", dest="gff_filepath", type=str, required=True)
     parser.add_argument("-t", "--threshold", dest="threshold", type=int, required=True, help="Maximum number of gap genes allowed in a neighbourhood.")
+
 
     main(parser.parse_args())
