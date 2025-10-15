@@ -1,10 +1,6 @@
-import sys
 import argparse
 import gffutils
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
 import pandas as pd
-
 
 def main(args):
     # we'll read the gff3 in
