@@ -3,10 +3,27 @@ import gffutils
 import pandas as pd
 
 def main(args):
+    def id_func(feature: gffutils.Feature) -> str:
+        """
+        If merge_strategy='create_unique' fails,
+        use this function to create unique id's
+        as a fallback strategy.
+
+        Particularly useful for Liftoff-generated
+        GFF3's, which like gffutils also appends
+        _1 to identical feature IDs
+        """
+        if feature.featuretype in ["exon", "CDS"]:
+            # THOUGHT: this is not the best solution if the same file is to be used again in the future
+            return "-".join([feature.attributes["ID"][0], feature.seqid, str(feature.start), str(feature.end)])
+        else:
+            return feature.attributes["ID"][0]
+
     # we'll read the gff3 in
     db = gffutils.create_db(
         data=args.gff_filepath,
         dbfn=":memory:",
+        id_spec=id_func,
         merge_strategy="create_unique",
         sort_attribute_values=True
     )
